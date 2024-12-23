@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Tempo com a menina mais linda do mundo</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            overflow-y: auto;
+            background: #2b0000;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            position: relative;
+        }
+
+        .background-photos {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 5px;
+            padding: 5px;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+
+        .background-photo {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contador {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            border-radius: 15px;
+        }
+
+        .contador img {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: opacity 0.5s ease-in-out;
+            margin-bottom: 1.5rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .time {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            width: fit-content;
+        }
+
+        .quote {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            font-style: italic;
+            line-height: 1.6;
+            padding: 1.5rem;
+            border-radius: 12px;
+            max-width: 600px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin: 1rem 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="contador">
+            <img src="" alt="Fotos do casal" id="gallery-img">
+            <h2>Tempo com a menina mais linda do mundo</h2>
+            <div class="time" id="contador"></div>
+            <div class="quote">
+                "Texto aqui"
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // muda data aqui
+            const startDate = new Date('2023-08-23T17:00:00Z');
+            let currentImageIndex = 0;
+
+            // Lista de todas as imagens da pasta images/
+            const images = Array.from({length: 20}, (_, i) => `images/foto${i + 1}.jpg`);
+            const galleryImg = document.getElementById('gallery-img');
+
+            function alternarImagem() {
+                if (images.length <= 1) return;
+
+                galleryImg.style.opacity = '0';
+
+                setTimeout(() => {
+                    // Tenta a próxima imagem
+                    currentImageIndex = (currentImageIndex + 1) % images.length;
+                    let attempts = 0;
+                    
+                    function tryLoadImage() {
+                        const img = new Image();
+                        img.onload = function() {
+                            galleryImg.src = images[currentImageIndex];
+                            galleryImg.style.opacity = '1';
+                        };
+                        img.onerror = function() {
+                            // Se a imagem não existir, tenta a próxima
+                            attempts++;
+                            if (attempts < images.length) {
+                                currentImageIndex = (currentImageIndex + 1) % images.length;
+                                tryLoadImage();
+                            }
+                        };
+                        img.src = images[currentImageIndex];
+                    }
+
+                    tryLoadImage();
+                }, 500);
+            }
+
+            function atualizarContador() {
+                const agora = new Date();
+                const diff = agora - startDate;
+                
+                const anos = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+                const meses = Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+                const dias = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+                const horas = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const segundos = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('contador').textContent = 
+                    `${anos}a, ${meses}m, ${dias}d, ${horas}h, ${minutos}m, ${segundos}s`;
+            }
+
+            // Tentar carregar a primeira imagem
+            if (images.length > 0) {
+                galleryImg.src = images[0];
+            }
+
+            // Atualizar contador a cada segundo
+            setInterval(atualizarContador, 1000);
+            
+            // Alternar imagem a cada 2.5 segundos
+            setInterval(alternarImagem, 2500);
+            
+            // Primeira atualização do contador
+            atualizarContador();
+
+            // Adicionar evento para carregar nova imagem quando a atual terminar de carregar
+            galleryImg.addEventListener('load', function() {
+                this.classList.add('fade-in');
+            });
+        });
+    </script>
+</body>
+</html>
